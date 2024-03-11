@@ -36,7 +36,8 @@ class MemoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        Memo::create($request->all());
+        return redirect()->route('memos.index');
     }
 
     /**
@@ -58,7 +59,7 @@ class MemoController extends Controller
      */
     public function edit($id)
     {
-        //
+        return view('memos.edit', compact('memo'));
     }
 
     /**
@@ -70,7 +71,8 @@ class MemoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $memo->update($request->all());
+        return redirect()->route('memos.index');
     }
 
     /**
@@ -81,6 +83,7 @@ class MemoController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $memo->delete();
+        return redirect()->route('memos.index');
     }
 }
