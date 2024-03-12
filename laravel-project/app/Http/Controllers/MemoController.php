@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Validator;
-use App\Models\Todo;
+use App\Models\Memo;
 
 class MemoController extends Controller
 {
@@ -13,9 +13,20 @@ class MemoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view('todo.index');
+        $query = Memo::query();
+
+        if ($search = $request->input('search')) {
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'LIKE', "%{$search}%")
+                ->orWhere('content', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $memos = $query->paginate(10);
+
+        return view('memos.index', compact('memos'));
     }
 
     /**
@@ -25,7 +36,7 @@ class MemoController extends Controller
      */
     public function create()
     {
-        return view('todo.create');
+        return view('memos.create');
     }
 
     /**
@@ -36,7 +47,12 @@ class MemoController extends Controller
      */
     public function store(Request $request)
     {
-        Memo::create($request->all());
+        $validatedData = $request->validate([
+            'title' => 'required',
+            'content' => 'required',
+        ]);
+
+        Memo::create($validatedData);
         return redirect()->route('memos.index');
     }
 
@@ -59,6 +75,7 @@ class MemoController extends Controller
      */
     public function edit($id)
     {
+        $memo = Memo::findOrFail($id);
         return view('memos.edit', compact('memo'));
     }
 
@@ -71,7 +88,13 @@ class MemoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $memo->update($request->all());
+        $validatedData = $request->validate([
+            'title' => 'required',
+            'content' => 'required',
+        ]);
+
+        $memo = Memo::findOrFail($id);
+        $memo->update($validatedData);
         return redirect()->route('memos.index');
     }
 
@@ -83,6 +106,7 @@ class MemoController extends Controller
      */
     public function destroy($id)
     {
+        $memo = Memo::findOrFail($id);
         $memo->delete();
         return redirect()->route('memos.index');
     }
