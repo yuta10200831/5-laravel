@@ -59,7 +59,7 @@
    </table>
    <!-- ページネーションリンク -->
    <div class="mt-4">
-    {{ $memos->appends(request()->query())->links() }}
+    {{ $memos->appends(['search' => request('search')])->links() }}
    </div>
   </div>
  </div>
