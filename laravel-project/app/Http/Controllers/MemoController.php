@@ -16,8 +16,8 @@ class MemoController extends Controller
     public function index(Request $request)
     {
         $query = Memo::query();
-
-        if ($search = $request->input('search')) {
+        $search = $request->input('search');
+        if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('title', 'LIKE', "%" . $search . "%")
                 ->orWhere('content', 'LIKE', "%" . $search . "%");
