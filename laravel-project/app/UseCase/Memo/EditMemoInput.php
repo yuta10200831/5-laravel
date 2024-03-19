@@ -2,7 +2,8 @@
 
 namespace App\UseCase\Memo;
 
-use App\Models\Memo;
+use App\Models\ValueObjects\Title;
+use App\Models\ValueObjects\Content;
 
 class EditMemoInput
 {
@@ -10,7 +11,7 @@ class EditMemoInput
     private $title;
     private $content;
 
-    public function __construct(int $memoId, string $title, string $content)
+    public function __construct(int $memoId, Title $title, Content $content)
     {
         $this->memoId = $memoId;
         $this->title = $title;
@@ -22,12 +23,12 @@ class EditMemoInput
         return $this->memoId;
     }
 
-    public function getTitle(): string
+    public function getTitle(): Title
     {
         return $this->title;
     }
 
-    public function getContent(): string
+    public function getContent(): Content
     {
         return $this->content;
     }
