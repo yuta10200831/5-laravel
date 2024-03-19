@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\Memo;
+use App\UseCase\Memo\CreateMemoInput;
+use App\UseCase\Memo\CreateMemoInteractor;
 
 class MemoController extends Controller
 {
@@ -52,8 +54,10 @@ class MemoController extends Controller
             'content' => 'required',
         ]);
 
-        Memo::create($validatedData);
-        return redirect()->route('memos.index');
+        $input = new CreateMemoInput($validatedData['title'], $validatedData['content']);
+        $interactor = new CreateMemoInteractor();
+        $output = $interactor->handle($input);
+        return redirect()->route('memos.index')->with('success', 'メモを作成しました。');
     }
 
     /**
