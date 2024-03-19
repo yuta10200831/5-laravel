@@ -5,6 +5,12 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Validator;
 use App\Models\Memo;
+use App\UseCase\Memo\CreateMemoInput;
+use App\UseCase\Memo\CreateMemoInteractor;
+use App\UseCase\Memo\EditMemoInput;
+use App\UseCase\Memo\EditMemoInteractor;
+use App\Models\ValueObjects\Title;
+use App\Models\ValueObjects\Content;
 
 class MemoController extends Controller
 {
@@ -47,13 +53,26 @@ class MemoController extends Controller
      */
     public function store(Request $request)
     {
-        $validatedData = $request->validate([
-            'title' => 'required',
-            'content' => 'required',
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|max:10',
+            'content' => 'required|max:200',
         ]);
 
-        Memo::create($validatedData);
-        return redirect()->route('memos.index');
+        if ($validator->fails()) {
+            return redirect()
+                ->route('memos.create')
+                ->withInput()
+                ->withErrors($validator);
+        }
+
+        $title = new Title($request->input('title'));
+        $content = new Content($request->input('content'));
+
+        $input = new CreateMemoInput($title, $content);
+        $interactor = new CreateMemoInteractor();
+        $output = $interactor->handle($input);
+
+        return redirect()->route('memos.index')->with('success', 'メモを作成しました。');
     }
 
     /**
@@ -88,14 +107,26 @@ class MemoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'title' => 'required',
-            'content' => 'required',
+        $validator = Validator::make($request->all(), [
+            'title' => 'required|max:10',
+            'content' => 'required|max:200',
         ]);
 
-        $memo = Memo::findOrFail($id);
-        $memo->update($validatedData);
-        return redirect()->route('memos.index');
+        if ($validator->fails()) {
+            return redirect()
+                ->route('memos.edit', $id)
+                ->withInput()
+                ->withErrors($validator);
+        }
+
+        $title = new Title($request->input('title'));
+        $content = new Content($request->input('content'));
+
+        $input = new EditMemoInput($id, $title, $content);
+        $interactor = new EditMemoInteractor();
+        $output = $interactor->handle($input);
+
+        return redirect()->route('memos.index')->with('success', 'メモが更新されました。');
     }
 
     /**
