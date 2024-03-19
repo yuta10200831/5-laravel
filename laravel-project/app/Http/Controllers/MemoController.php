@@ -7,6 +7,8 @@ use Validator;
 use App\Models\Memo;
 use App\UseCase\Memo\CreateMemoInput;
 use App\UseCase\Memo\CreateMemoInteractor;
+use App\UseCase\Memo\EditMemoInput;
+use App\UseCase\Memo\EditMemoInteractor;
 
 class MemoController extends Controller
 {
@@ -92,14 +94,11 @@ class MemoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validatedData = $request->validate([
-            'title' => 'required',
-            'content' => 'required',
-        ]);
+        $input = new EditMemoInput($id, $request->title, $request->content);
+        $interactor = new EditMemoInteractor();
+        $output = $interactor->handle($input);
+        return redirect()->route('memos.index')->with('success', 'メモを作成しました。');
 
-        $memo = Memo::findOrFail($id);
-        $memo->update($validatedData);
-        return redirect()->route('memos.index');
     }
 
     /**
